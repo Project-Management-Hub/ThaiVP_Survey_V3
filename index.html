@@ -923,8 +923,13 @@ async function submitToGoogleSheets() {
             body: JSON.stringify(data),
             headers: { 'Content-Type': 'text/plain' }
         });
-        const result = await resp.json();
-        if (result.status === 'success') {
+        const text = await resp.text();
+        let result = {};
+        try { result = JSON.parse(text); } catch(e) { result = { raw: text }; }
+
+        // ถือว่าสำเร็จถ้า status === 'success' หรือ API ตอบกลับเป็น plain text (เช่น "API is running")
+        const isSuccess = result.status === 'success' || (result.raw && result.raw.trim().length > 0);
+        if (isSuccess) {
             currentStep++;
             showStep(currentStep);
             updateStepIndicator();

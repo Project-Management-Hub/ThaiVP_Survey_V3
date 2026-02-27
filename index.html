@@ -225,14 +225,15 @@
                     <div class="section-header"><div class="section-letter">A</div><div class="section-title">ข้อมูลทั่วไป</div></div>
                     <div class="question">
                         <label class="question-label">A1. ชื่อ-นามสกุล</label>
-                        <input type="text" id="a1Name" placeholder="กรอกชื่อ-นามสกุล">
+                        <div style="font-size:12px;color:#aaa;margin-bottom:6px;">ระบุหรือไม่ระบุก็ได้</div>
+                        <input type="text" id="a1Name" placeholder="กรอกชื่อ-นามสกุล (ระบุหรือไม่ระบุก็ได้)">
                     </div>
                     <div class="question">
                         <label class="question-label">A2. ตำแหน่งงาน</label>
                         <input type="text" id="a2Position" placeholder="กรอกตำแหน่งงาน">
                     </div>
                     <div class="question">
-                        <label class="question-label">A3. แผนก / ทีม</label>
+                        <label class="question-label">A3. แผนก / ทีม <span style="color:#e53e3e;">*</span></label>
                         <div class="question-sublabel">ระบบจะแสดงแผนกตาม BU ที่เลือก</div>
                         <select id="subDeptSelect"><option value="">— กรุณาเลือกแผนก —</option></select>
                     </div>
@@ -726,6 +727,34 @@ function updateStepIndicator() { const ind=document.getElementById('stepIndicato
 function updateProgress() { document.getElementById('progressBar').style.width=((currentStep-1)/totalSteps*100)+'%'; }
 function showStep(s) { document.querySelectorAll('.step').forEach(x=>x.style.display='none'); document.querySelector(`.step[data-step="${s}"]`).style.display='block'; const prevBtn=document.getElementById('prevBtn'); if(s===1){prevBtn.style.visibility='visible';prevBtn.textContent='← เลือก BU ใหม่';}else{prevBtn.style.visibility='visible';prevBtn.textContent='← ย้อนกลับ';} if(s===totalSteps)document.getElementById('nextBtn').textContent='ส่ง ✓';else if(s===totalSteps+1)document.getElementById('navButtons').style.display='none';else document.getElementById('nextBtn').textContent='ถัดไป →'; }
 function nextStep() {
+    // Step 1: บังคับเฉพาะแผนก (A3) — ชื่อ/เบอร์ไม่ required
+    if (currentStep === 1) {
+        const deptSelect = document.getElementById('subDeptSelect');
+        if (!deptSelect || !deptSelect.value) {
+            deptSelect.style.outline = '2px solid #e53e3e';
+            deptSelect.style.borderColor = '#e53e3e';
+            deptSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            deptSelect.addEventListener('change', function clearErr() {
+                deptSelect.style.outline = '';
+                deptSelect.style.borderColor = '';
+                deptSelect.removeEventListener('change', clearErr);
+            });
+            const label = deptSelect.closest('.question')?.querySelector('.question-label');
+            if (label && !document.getElementById('deptErrorMsg')) {
+                const err = document.createElement('div');
+                err.id = 'deptErrorMsg';
+                err.style.cssText = 'color:#e53e3e;font-size:13px;margin-top:4px;';
+                err.textContent = '⚠️ กรุณาเลือกแผนก / ทีม ก่อนดำเนินการต่อ';
+                deptSelect.parentNode.insertBefore(err, deptSelect.nextSibling);
+                deptSelect.addEventListener('change', function removeErr() {
+                    const msg = document.getElementById('deptErrorMsg');
+                    if (msg) msg.remove();
+                    deptSelect.removeEventListener('change', removeErr);
+                });
+            }
+            return;
+        }
+    }
     if (currentStep === totalSteps) {
         // SUBMIT!
         submitToGoogleSheets();

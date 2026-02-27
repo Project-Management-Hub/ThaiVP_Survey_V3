@@ -709,7 +709,7 @@ function toggleTool(el) { el.classList.toggle('selected'); }
 function toggleOtherTool(el, cat) { el.classList.toggle('selected'); const inp = document.getElementById(cat+'-other'); if(el.classList.contains('selected')){inp.classList.add('show');inp.focus();}else{inp.classList.remove('show');inp.value='';} }
 function selectFreq(el) { document.querySelectorAll('.freq-option').forEach(o => o.classList.remove('selected')); el.classList.add('selected'); }
 function toggleCheckbox(el) { el.classList.toggle('selected'); }
-function selectRating(btn) { btn.closest('.rating-row').querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); }
+function selectRating(btn) { if(btn.classList.contains('selected')){btn.classList.remove('selected');return;} btn.closest('.rating-row').querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); }
 function selectSatisfaction(btn) { btn.closest('tr').querySelectorAll('.satisfaction-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); }
 
 // Work cells
